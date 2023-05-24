@@ -1,0 +1,11 @@
+#chatgpt-improved-prompt-extension {
+  width: min-content;
+  display: flex;
+  flex-direction: row;
+  align-items: end;
+  padding-bottom: 16px;
+  @media (max-width: 767px) {
+    align-items: center;
+    padding-bottom: 0px;
+  }
+}
