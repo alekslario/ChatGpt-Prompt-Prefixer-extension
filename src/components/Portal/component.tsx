@@ -1,15 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import browser from "webextension-polyfill";
-import { Tabs, Button, Textarea, ActionIcon } from '@mantine/core';
+import { Tabs, Button, Textarea, ActionIcon, TextInput } from '@mantine/core';
 import styled from '@emotion/styled';
 import { IconX } from '@tabler/icons-react';
-type State = {
-    storageCache: {
-        prefix?: string,
-        postfix?: string,
-        [key: string]: string | undefined,
-    }
-}
 
 const Portal = styled.div`
 height: 100vh;
@@ -50,9 +43,20 @@ const StyledButton = styled(Button)`
     color: #fff;
    }
 `;
+
+type State = {
+    storageCache: {
+        prefix?: string;
+        postfix?: string;
+        [key: string]: string;
+    }
+    loading?: boolean,
+}
+
 export default () => {
-    const [{ storageCache }, setState] = useState<State>({
+    const [{ storageCache, loading }, setState] = useState<State>({
         storageCache: {},
+        loading: false,
     });
 
     useEffect(() => {
@@ -70,8 +74,9 @@ export default () => {
 
     };
     const handleSave = () => {
+        setState(prev => ({ ...prev, loading: true }));
         // browser.storage.sync.set({ prefix: value });
-
+        setState(prev => ({ ...prev, loading: false }));
     };
     console.log('portal', storageCache);
 
@@ -81,7 +86,7 @@ export default () => {
             <ActionIcon aria-label='close'>
                 <IconX />
             </ActionIcon></div>
-        <Tabs defaultValue="prefix" className='flex-2' color="dark">
+        <Tabs defaultValue="prefix" className='grow'>
             <Tabs.List>
                 <StyledTabs value="prefix" >Prefix</StyledTabs>
                 <StyledTabs value="postfix" >Postfix</StyledTabs>
@@ -107,7 +112,14 @@ export default () => {
             </Tabs.Panel>
 
             <Tabs.Panel value="replace" pt="xs">
-                Settings tab content
+                {Object.keys(storageCache).filter(key =>
+                    key === 'prefix' || key === 'postfix')
+                    .map((key) => {
+                        const [someKey, someVal] = storageCache[key];
+                        return <div className='flex flex-row justify-between'>
+                            <div>{someKey}</div> <div>{someVal}</div>
+                        </div>
+                    })}
             </Tabs.Panel>
         </Tabs>
         <div className='flex flex-row justify-end mt1'>
@@ -116,6 +128,6 @@ export default () => {
                 // @ts-ignore
                 color="dark.5"
                 variant="outline"
-                onClick={handleSave}>Save</StyledButton></div>
+                onClick={handleSave} loading={loading}>Save</StyledButton></div>
     </Container></Portal>
 };
