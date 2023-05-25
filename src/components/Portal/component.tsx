@@ -56,15 +56,16 @@ export default () => {
     console.log('portal', storageCache);
 
     return <Portal id={'chatgpt-improved-prompt-extension-portal'}><Container>
-        <Button onClick={handleSave}></Button>
+
+        <Button onClick={handleSave}>Save</Button>
         <Tabs defaultValue="prefix">
             <Tabs.List>
-                <Tabs.Tab value="Prefix" >prefix</Tabs.Tab>
-                <Tabs.Tab value="Postfix" >postfix</Tabs.Tab>
-                <Tabs.Tab value="Replace" >Settings</Tabs.Tab>
+                <Tabs.Tab value="Prefix" >Prefix</Tabs.Tab>
+                <Tabs.Tab value="postfix" >Postfix</Tabs.Tab>
+                <Tabs.Tab value="replace" >Replace</Tabs.Tab>
             </Tabs.List>
 
-            <Tabs.Panel value="Prefix" pt="xs">
+            <Tabs.Panel value="prefix" pt="xs">
                 <Textarea
                     defaultValue={storageCache['prefix']}
                     placeholder="Your comment"
@@ -73,7 +74,7 @@ export default () => {
                 />
             </Tabs.Panel>
 
-            <Tabs.Panel value="Postfix" pt="xs">
+            <Tabs.Panel value="postfix" pt="xs">
                 <Textarea
                     defaultValue={storageCache['prefix']}
                     placeholder="Your comment"
@@ -82,7 +83,7 @@ export default () => {
                 />
             </Tabs.Panel>
 
-            <Tabs.Panel value="Replace" pt="xs">
+            <Tabs.Panel value="replace" pt="xs">
                 Settings tab content
             </Tabs.Panel>
         </Tabs>
