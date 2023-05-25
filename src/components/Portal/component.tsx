@@ -45,7 +45,7 @@ const CrossButton = styled.button`
 
  `;
 
-const StyledButton = styled(Button)`
+const StyledButton: React.FC = styled(Button)`
 background-color: #242731;
 `;
 export default () => {
@@ -75,7 +75,11 @@ export default () => {
 
     return <Portal id={'chatgpt-improved-prompt-extension-portal'}><Container>
 
-        <div className='flex flex-row justify-end'><StyledButton onClick={handleSave}>Save</StyledButton></div>
+        <div className='flex flex-row justify-end'>
+            @ts-ignore
+            <StyledButton
+                // @ts-ignore
+                onClick={handleSave}>Save</StyledButton></div>
         <Tabs defaultValue="prefix">
             <Tabs.List>
                 <StyledTabs value="plast of usofcolorrefix" >Prefix</StyledTabs>
