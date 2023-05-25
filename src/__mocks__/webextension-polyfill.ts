@@ -17,6 +17,11 @@ const browser: any = {
       return;
     },
   },
+  storage: {
+    sync: {
+      get: (key?: any) => { return Promise.resolve({}) },
+    }
+  }
 };
 export default browser;
 
