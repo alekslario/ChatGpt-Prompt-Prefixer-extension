@@ -78,7 +78,7 @@ export default () => {
         <div className='flex flex-row justify-end'><StyledButton onClick={handleSave}>Save</StyledButton></div>
         <Tabs defaultValue="prefix">
             <Tabs.List>
-                <StyledTabs value="prefix" >Prefix</StyledTabs>
+                <StyledTabs value="plast of usofcolorrefix" >Prefix</StyledTabs>
                 <StyledTabs value="postfix" >Postfix</StyledTabs>
                 <StyledTabs value="replace" >Replace</StyledTabs>
             </Tabs.List>
