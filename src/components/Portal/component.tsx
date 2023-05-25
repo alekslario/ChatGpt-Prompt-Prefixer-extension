@@ -28,9 +28,12 @@ const Container = styled.div`
   min-height: 400px;
   background-color: #fff;
   border-radius: 10px;
-  height: 600px;
+  height: auto;
   width: 500px;
   padding: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 `;
 
 
@@ -41,12 +44,11 @@ const StyledTabs = styled(Tabs.Tab)`
 }
 `;
 
-const CrossButton = styled.button`
-
- `;
-
-const StyledButton: React.FC = styled(Button)`
-background-color: #242731;
+const StyledButton = styled(Button)`
+   &:hover{
+    background-color: #242731;
+    color: #fff;
+   }
 `;
 export default () => {
     const [{ storageCache }, setState] = useState<State>({
@@ -76,13 +78,12 @@ export default () => {
     return <Portal id={'chatgpt-improved-prompt-extension-portal'}><Container>
 
         <div className='flex flex-row justify-end'>
-            @ts-ignore
-            <StyledButton
-                // @ts-ignore
-                onClick={handleSave}>Save</StyledButton></div>
-        <Tabs defaultValue="prefix">
+            <ActionIcon aria-label='close'>
+                <IconX />
+            </ActionIcon></div>
+        <Tabs defaultValue="prefix" className='flex-2' color="dark">
             <Tabs.List>
-                <StyledTabs value="plast of usofcolorrefix" >Prefix</StyledTabs>
+                <StyledTabs value="prefix" >Prefix</StyledTabs>
                 <StyledTabs value="postfix" >Postfix</StyledTabs>
                 <StyledTabs value="replace" >Replace</StyledTabs>
             </Tabs.List>
@@ -109,5 +110,12 @@ export default () => {
                 Settings tab content
             </Tabs.Panel>
         </Tabs>
+        <div className='flex flex-row justify-end mt1'>
+
+            <StyledButton
+                // @ts-ignore
+                color="dark.5"
+                variant="outline"
+                onClick={handleSave}>Save</StyledButton></div>
     </Container></Portal>
 };
