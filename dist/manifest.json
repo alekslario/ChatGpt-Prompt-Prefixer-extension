@@ -25,7 +25,8 @@
     "activeTab",
     "notifications",
     "scripting",
-    "webNavigation"
+    "webNavigation",
+    "storage"
   ],
   "content_scripts": [
     {

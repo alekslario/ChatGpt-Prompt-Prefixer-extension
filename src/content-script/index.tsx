@@ -10,6 +10,10 @@ const mount = () => {
     span.id = 'chatgpt-improved-prompt-extension'
     if (form) {
       form.appendChild(span)
+      const submitButton: any = document.querySelector('form button');
+
+      if (submitButton)
+        submitButton.onclick = () => { console.log('clicked submit button'); }
     }
 
     const container = document.getElementById('chatgpt-improved-prompt-extension');
