@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import browser from "webextension-polyfill";
-import { Tabs, Button, Textarea } from '@mantine/core';
+import { Tabs, Button, Textarea, ActionIcon } from '@mantine/core';
 import styled from '@emotion/styled';
+import { IconSettings } from '@tabler/icons-react';
 type State = {
     storageCache: {
         prefix?: string,
@@ -25,10 +26,25 @@ z-index: 10000000;
 const Container = styled.div`
   min-width: 300px;
   min-height: 400px;
-  background-color: red;
+  background-color: #fff;
+  border-radius: 10px;
   height: 600px;
   width: 500px;
-  padding: 20px;
+  padding: 30px;
+`;
+const StyledButton = styled(Button)`
+background-color: #242731
+`;
+
+const StyledTabs = styled(Tabs.Tab)`
+&[aria-selected="true"] {
+  background-color: #242731;
+  color: #fff;
+}
+`;
+
+const CrossButton = styled.button`
+
 `;
 export default () => {
     const [{ storageCache }, setState] = useState<State>({
@@ -57,29 +73,29 @@ export default () => {
 
     return <Portal id={'chatgpt-improved-prompt-extension-portal'}><Container>
 
-        <Button onClick={handleSave}>Save</Button>
+        <div className='flex flex-row justify-end'><StyledButton onClick={handleSave}>Save</StyledButton></div>
         <Tabs defaultValue="prefix">
             <Tabs.List>
-                <Tabs.Tab value="Prefix" >Prefix</Tabs.Tab>
-                <Tabs.Tab value="postfix" >Postfix</Tabs.Tab>
-                <Tabs.Tab value="replace" >Replace</Tabs.Tab>
+                <StyledTabs value="Prefix" >Prefix</StyledTabs>
+                <StyledTabs value="postfix" >Postfix</StyledTabs>
+                <StyledTabs value="replace" >Replace</StyledTabs>
             </Tabs.List>
 
             <Tabs.Panel value="prefix" pt="xs">
                 <Textarea
                     defaultValue={storageCache['prefix']}
-                    placeholder="Your comment"
-                    label="Your comment"
-                    withAsterisk
+                    label="Your prefix"
+                    autosize
+                    minRows={6}
                 />
             </Tabs.Panel>
 
             <Tabs.Panel value="postfix" pt="xs">
                 <Textarea
-                    defaultValue={storageCache['prefix']}
-                    placeholder="Your comment"
-                    label="Your comment"
-                    withAsterisk
+                    defaultValue={storageCache['postfix']}
+                    label="Your postfix"
+                    autosize
+                    minRows={6}
                 />
             </Tabs.Panel>
 
