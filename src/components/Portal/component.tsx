@@ -22,18 +22,14 @@ export default () => {
             Object.assign(storageCache, items);
         });
         console.log('portal', storageCache);
-        chrome.storage.sync.get(['prefix'], function (result) {
-            console.log('Value currently is ' + result.prefix);
-        });
+        browser.storage.sync.get(['prefix']);
         setState(prev => ({ ...prev, storageCache }));
     }, []);
     const handleAdd = (key: string) => {
 
     };
     const handleSave = () => {
-        chrome.storage.sync.set({ prefix: value }, () => {
-            console.log('Value is set to ' + value)
-        });
+        // browser.storage.sync.set({ prefix: value });
 
     };
     console.log('portal', storageCache);
