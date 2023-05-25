@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import browser from "webextension-polyfill";
 import { Tabs, Button, Textarea } from '@mantine/core';
 type State = {
-    tab: string;
     storageCache: {
         prefix?: string,
         postfix?: string,
@@ -10,12 +9,10 @@ type State = {
     }
 }
 export default () => {
-    const [{ storageCache, tab }, setState] = useState<State>({
-        tab: 'prefix',
+    const [{ storageCache }, setState] = useState<State>({
         storageCache: {},
     });
 
-    const [value, setValue] = useState('');
     useEffect(() => {
         const storageCache = {};
         browser.storage.sync.get().then((items) => {
@@ -36,9 +33,6 @@ export default () => {
     const handleSave = () => {
         chrome.storage.sync.set({ prefix: value }, () => {
             console.log('Value is set to ' + value)
-            chrome.storage.sync.get(['prefix'], function (result) {
-                console.log('Value currently is ' + result.prefix);
-            });
         });
 
     };
@@ -49,24 +43,29 @@ export default () => {
         <Tabs defaultValue="prefix">
             <Tabs.List>
                 <Tabs.Tab value="prefix" >prefix</Tabs.Tab>
-                <Tabs.Tab value="messages" >Messages</Tabs.Tab>
+                <Tabs.Tab value="postfix" >postfix</Tabs.Tab>
                 <Tabs.Tab value="settings" >Settings</Tabs.Tab>
             </Tabs.List>
 
             <Tabs.Panel value="prefix" pt="xs">
-                {storageCache['prefix'] ? storageCache['prefix'] : <Textarea
-                    value={value} onChange={(event) => setValue(event.currentTarget.value)}
+                <Textarea
+                    defaultValue={storageCache['prefix']}
                     placeholder="Your comment"
                     label="Your comment"
                     withAsterisk
-                />}
+                />
             </Tabs.Panel>
 
-            <Tabs.Panel value="messages" pt="xs">
-                Messages tab content
+            <Tabs.Panel value="postfix" pt="xs">
+                <Textarea
+                    defaultValue={storageCache['prefix']}
+                    placeholder="Your comment"
+                    label="Your comment"
+                    withAsterisk
+                />
             </Tabs.Panel>
 
-            <Tabs.Panel value="settings" pt="xs">
+            <Tabs.Panel value="replace" pt="xs">
                 Settings tab content
             </Tabs.Panel>
         </Tabs>

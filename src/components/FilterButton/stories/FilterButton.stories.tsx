@@ -1,7 +1,6 @@
 import * as React from "react";
 import FilterButton from "../component";
 
-
 // // // //
 
 export default {
