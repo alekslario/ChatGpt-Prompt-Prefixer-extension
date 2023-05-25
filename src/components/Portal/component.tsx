@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import browser from "webextension-polyfill";
 import { Tabs, Button, Textarea, ActionIcon } from '@mantine/core';
 import styled from '@emotion/styled';
-import { IconSettings } from '@tabler/icons-react';
+import { IconX } from '@tabler/icons-react';
 type State = {
     storageCache: {
         prefix?: string,
@@ -32,9 +32,7 @@ const Container = styled.div`
   width: 500px;
   padding: 30px;
 `;
-const StyledButton = styled(Button)`
-background-color: #242731
-`;
+
 
 const StyledTabs = styled(Tabs.Tab)`
 &[aria-selected="true"] {
@@ -45,6 +43,10 @@ const StyledTabs = styled(Tabs.Tab)`
 
 const CrossButton = styled.button`
 
+ `;
+
+const StyledButton = styled(Button)`
+background-color: #242731;
 `;
 export default () => {
     const [{ storageCache }, setState] = useState<State>({
@@ -76,7 +78,7 @@ export default () => {
         <div className='flex flex-row justify-end'><StyledButton onClick={handleSave}>Save</StyledButton></div>
         <Tabs defaultValue="prefix">
             <Tabs.List>
-                <StyledTabs value="Prefix" >Prefix</StyledTabs>
+                <StyledTabs value="prefix" >Prefix</StyledTabs>
                 <StyledTabs value="postfix" >Postfix</StyledTabs>
                 <StyledTabs value="replace" >Replace</StyledTabs>
             </Tabs.List>
