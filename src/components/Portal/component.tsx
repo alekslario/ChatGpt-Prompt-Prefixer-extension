@@ -66,7 +66,8 @@ type State = {
             }
         }
     }
-    loading?: boolean,
+    loading: boolean;
+    newCount: number;
 }
 
 export default () => {
@@ -77,6 +78,7 @@ export default () => {
             prefix: '',
             replace: {}
         },
+        newCount: 0,
         loading: false
     });
 
@@ -93,16 +95,57 @@ export default () => {
             ...prev, storageCache, localState: deepClone(storageCache)
         }));
     }, []);
-    const handleAdd = (key: string) => {
 
-    };
     const handleSave = () => {
         setState(prev => ({ ...prev, loading: true }));
         // browser.storage.sync.set({ prefix: value });
         setState(prev => ({ ...prev, loading: false }));
     };
     console.log('portal', storageCache);
+    const handleInputChange = (event: any) => {
+        const { name, value, ariaLabel } = event.currentTarget;
+        if (name === 'prefix' || name === 'postfix') {
+            setState(prev => ({ ...prev, localState: { ...prev.localState, [name]: value } }));
 
+        } else {
+            setState(prev => ({
+                ...prev, localState: {
+                    ...prev.localState, replace: {
+                        ...prev.localState.replace, [name]: {
+                            ...prev.localState.replace?.[name], [ariaLabel]: value
+                        }
+                    }
+                }
+            }))
+        }
+    }
+
+    const handleAddMore = () => {
+        setState(prev => ({
+            ...prev,
+            newCount: prev.newCount + 1,
+            localState: {
+                ...prev.localState, replace: {
+                    ...prev.localState.replace, [`temp_${prev.newCount}`]: {
+                        from: '',
+                        to: ''
+                    }
+                }
+            }
+        }));
+    };
+
+    const handleRemove = (id: string) => {
+        delete localState.replace?.[id];
+        setState(prev => ({
+            ...prev,
+            localState: {
+                ...prev.localState, replace: {
+                    ...prev.localState.replace
+                }
+            }
+        }));
+    }
     return <Portal id={'chatgpt-improved-prompt-extension-portal'}><Container>
 
         <div className='flex flex-row justify-end mb-4'>
@@ -137,16 +180,16 @@ export default () => {
             <Tabs.Panel value="replace" pt="xs" className='overflow-y-auto max-h-52' >
                 {Object.keys(localState.replace || {})
                     .map((_key) => {
-                        const [[from], [to]] = Object.entries(localState.replace?.[_key] || {});
+                        const obj = localState.replace?.[_key];
 
                         return <div className='flex justify-between pt-3 items-end'>
                             <TextInput
                                 placeholder="my-api-key"
                                 label="Original text"
                                 aria-label='from'
-                                value={from}
+                                value={obj?.from}
                                 name={_key}
-                                onChange={handleIputChange}
+                                onChange={handleInputChange}
                             />
                             <span className='pt-5 my-auto'>&#8594;</span>
                             <TextInput
@@ -154,16 +197,16 @@ export default () => {
                                 label="Replace with"
                                 aria-label='to'
                                 name={_key}
-                                value={to}
-                                onChange={handleIputChange}
+                                value={obj?.to}
+                                onChange={handleInputChange}
                             />
-                            <ActionIcon aria-label='remove' className='m-1'>
+                            <ActionIcon aria-label='remove' className='m-1' onClick={() => handleRemove(_key)}>
                                 <IconSquareRoundedX />
                             </ActionIcon>
                         </div>
                     })}
                 <div className='flex flex-row justify-center mt-5'>
-                    <ActionIcon aria-label='Add More' onClick={() => setState(prev => ({ ...prev, localState: { ...prev.localState, '': '' } }))}>
+                    <ActionIcon aria-label='Add More' onClick={handleAddMore}>
                         <IconCirclePlus />
                     </ActionIcon></div>
             </Tabs.Panel>
