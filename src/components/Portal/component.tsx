@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import browser from "webextension-polyfill";
 import { Tabs, Button, Textarea, ActionIcon, TextInput } from '@mantine/core';
 import styled from '@emotion/styled';
-import { IconX } from '@tabler/icons-react';
+import { IconX, IconCirclePlus, IconSquareRoundedX } from '@tabler/icons-react';
+import { encode, decode } from '../../util/encode'
 
 const Portal = styled.div`
 height: 100vh;
@@ -21,7 +22,7 @@ const Container = styled.div`
   min-height: 400px;
   background-color: #fff;
   border-radius: 10px;
-  height: auto;
+  height: 400px;
   width: 500px;
   padding: 30px;
   display: flex;
@@ -53,25 +54,27 @@ type State = {
         }
     }
     loading?: boolean,
+    extraReplace: number;
 }
 
 export default () => {
-    const [{ storageCache, loading }, setState] = useState<State>({
-        storageCache: { 'r1': { original: 'feffef', replacer: '322323223' } },
+    const [{ storageCache, loading, extraReplace }, setState] = useState<State>({
+        storageCache: { 'replace': { 'NDNnMzVoLS0tLS0tLS0t': 'feffef' } },
         loading: false,
+        extraReplace: 0
     });
 
-    useEffect(() => {
-        const storageCache = {};
-        browser.storage.sync.get().then((items) => {
-            console.log('portal', items);
+    // useEffect(() => {
+    //     const storageCache = {};
+    //     browser.storage.sync.get().then((items) => {
+    //         console.log('portal', items);
 
-            // Copy the data retrieved from storage into storageCache.
-            Object.assign(storageCache, items);
-        });
-        console.log('portal', storageCache);
-        setState(prev => ({ ...prev, storageCache }));
-    }, []);
+    //         // Copy the data retrieved from storage into storageCache.
+    //         Object.assign(storageCache, items);
+    //     });
+    //     console.log('portal', storageCache);
+    //     setState(prev => ({ ...prev, storageCache }));
+    // }, []);
     const handleAdd = (key: string) => {
 
     };
@@ -84,7 +87,7 @@ export default () => {
 
     return <Portal id={'chatgpt-improved-prompt-extension-portal'}><Container>
 
-        <div className='flex flex-row justify-end'>
+        <div className='flex flex-row justify-end mb-4'>
             <ActionIcon aria-label='close'>
                 <IconX />
             </ActionIcon></div>
@@ -113,29 +116,53 @@ export default () => {
                 />
             </Tabs.Panel>
 
-            <Tabs.Panel value="replace" pt="xs">
-                {Object.keys(storageCache).filter(key =>
-                    key === 'prefix' || key === 'postfix')
+            <Tabs.Panel value="replace" pt="xs" className='overflow-y-auto max-h-52' >
+                {Object.keys(storageCache.replace || {}).filter(key =>
+                    key !== 'prefix' && key !== 'postfix')
                     .map((key) => {
-                        const [someKey, someVal] = storageCache[key];
-                        return <div className='flex flex-row justify-between'>
-                            <div>{someKey}</div> <div>{someVal}</div>
+                        const val = storageCache.replace?.[key];
+                        const someKey = decode(key);
+                        return <div className='flex justify-between pt-3 items-end'>
+                            <TextInput
+                                placeholder="my-api-key"
+                                label="Original text"
+                                defaultValue={someKey}
+                            />
+                            <span className='pt-5 my-auto'>&#8594;</span>
+                            <TextInput
+                                placeholder="xxx-xxx-xxx"
+                                label="Replace with"
+                                defaultValue={val}
+                            />
+                            <ActionIcon aria-label='remove' className='m-1'>
+                                <IconSquareRoundedX />
+                            </ActionIcon>
                         </div>
                     })}
-                <div className='flex justify-between'>
-                    <TextInput
-                        placeholder="my-api-key"
-                        label="Original text"
-                    />
-                    <span className='pt-5 my-auto'>&#8594;</span>
-                    <TextInput
-                        placeholder="xxx-xxx-xxx"
-                        label="Replace with"
-                    />
-                </div>
+                {Array.from(Array(extraReplace).keys()).map((_, i) => {
+                    return <div className='flex justify-between pt-3 items-end'>
+                        <TextInput
+                            placeholder="my-api-key"
+                            label="Original text"
+                        />
+                        <span className='pt-5 my-auto'>&#8594;</span>
+                        <TextInput
+                            placeholder="xxx-xxx-xxx"
+                            label="Replace with"
+                        />
+                        <ActionIcon aria-label='remove' className='m-1'>
+                            <IconSquareRoundedX />
+                        </ActionIcon>
+                    </div>
+                })}
+                <div className='flex flex-row justify-center mt-5'>
+                    <ActionIcon aria-label='Add More' onClick={() => setState(prev => ({ ...prev, extraReplace: prev.extraReplace + 1 }))}>
+                        <IconCirclePlus />
+                    </ActionIcon></div>
             </Tabs.Panel>
+
         </Tabs>
-        <div className='flex flex-row justify-end mt1'>
+        <div className='flex flex-row justify-end mt-4'>
 
             <StyledButton
                 // @ts-ignore
