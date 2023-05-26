@@ -72,10 +72,11 @@ type State = {
     loading: boolean;
     newCount: number;
     needSave: boolean;
+    requestApproval: boolean;
 }
 
-export default ({ closePortal }) => {
-    const [{ storageCache, loading, localState, needSave }, setState] = useState<State>({
+export default ({ closePortal }: { closePortal: Function; }) => {
+    const [{ storageCache, loading, localState, needSave, requestApproval }, setState] = useState<State>({
         storageCache: {
             postfix: '',
             prefix: '',
@@ -88,7 +89,8 @@ export default ({ closePortal }) => {
         },
         newCount: 0,
         loading: false,
-        needSave: false
+        needSave: false,
+        requestApproval: false,
     });
 
     useEffect(() => {
@@ -188,19 +190,21 @@ export default ({ closePortal }) => {
         }
 
         browser.storage.sync.set(newState);
-        setState(prev => ({ ...prev, loading: false }));
+        setState(prev => ({ ...prev, loading: false, needSave: false }));
     }
 
     const handleClose = () => {
         if (needSave) {
-            if (!window.confirm('You have unsaved changes. Are you sure you want to close?')) return;
+            setState(prev => ({ ...prev, requestApproval: true }));
+        } else {
+            closePortal();
         }
 
     }
     return <Portal id={'chatgpt-improved-prompt-extension-portal'}><Container>
-        <div className='flex'></div>
+        {requestApproval && <div className='flex'></div>}
         <div className='flex flex-row justify-end mb-4'>
-            <ActionIcon aria-label='close'>
+            <ActionIcon aria-label='close' onClick={handleClose}>
                 <IconX />
             </ActionIcon></div>
         <Tabs defaultValue="prefix" className='grow'>
