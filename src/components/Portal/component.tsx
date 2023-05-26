@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import browser from "webextension-polyfill";
-import { Tabs, Button, Textarea, ActionIcon, TextInput } from '@mantine/core';
+import { Tabs, Button, Textarea, ActionIcon, TextInput, Checkbox } from '@mantine/core';
 import styled from '@emotion/styled';
-import { IconX, IconCirclePlus, IconSquareRoundedX } from '@tabler/icons-react';
+import { IconX, IconCirclePlus, IconSquareRoundedX, IconRegex } from '@tabler/icons-react';
 import { encode, decode, deepClone } from '../../util/encode'
 
 const Portal = styled.div`
@@ -47,6 +47,18 @@ const StyledButton = styled(Button) <{ needSave: boolean; }>`
 }
 ${({ needSave }) => (needSave ? 'background-color: #242731; color: #fff;' : ''
     )}
+`;
+
+const StyledCheckbox = styled(Checkbox)`
+& input svg {
+   stroke:#242731;
+    
+}
+& input:checked {
+    background-color: #242731;
+    border-color: #242731;
+    box-shadow: 0 0 0 3px #c6cbdd;
+}
 `;
 
 type State = {
@@ -247,7 +259,9 @@ export default ({ closePortal = () => { } }: { closePortal: Function; }) => {
                 />
             </Tabs.Panel>
 
-            <Tabs.Panel value="replace" pt="xs" className='overflow-y-auto max-h-52' >
+            <Tabs.Panel value="replace" pt="xs" className='overflow-y-auto w-full pr-[10px] max-h-[200px]' style={{ 'scrollbarGutter': 'stable' }} >
+                {Object.keys(localState.replace || {}).length === 0 && <p className='m-5'>Replacements are executed in order, from top to bottom. Regex is accepted. </p>}
+
                 {Object.keys(localState.replace || {})
                     .map((_key) => {
                         const obj = localState.replace?.[_key];
@@ -272,9 +286,12 @@ export default ({ closePortal = () => { } }: { closePortal: Function; }) => {
                                 onChange={handleInputChange}
                                 disabled={requestApproval || loading}
                             />
-                            <ActionIcon disabled={requestApproval || loading} aria-label='remove' className='m-1' onClick={() => handleRemove(_key)}>
-                                <IconSquareRoundedX />
-                            </ActionIcon>
+                            <span className='flex items-center pl-2.5'>
+                                <StyledCheckbox icon={IconRegex} aria-label="Regex" indeterminate />
+                                <ActionIcon disabled={requestApproval || loading} aria-label='remove' className='m-1' onClick={() => handleRemove(_key)} color="dark">
+                                    <IconSquareRoundedX />
+                                </ActionIcon>
+                            </span>
                         </div>
                     })}
                 <div className='flex flex-row justify-center mt-5'>
