@@ -38,11 +38,14 @@ const StyledTabs = styled(Tabs.Tab)`
 }
 `;
 
-const StyledButton = styled(Button)`
-   &:hover{
-    background-color: #242731;
+const StyledButton = styled(Button) <{ needSave: boolean; }>`
+&:hover {
+    background-color: #242731; 
     color: #fff;
-   }
+    box-shadow: 0 0 0 3px #c6cbdd;
+}
+${({ needSave }) => (needSave ? 'background-color: #242731; color: #fff;' : ''
+    )}
 `;
 
 type State = {
@@ -68,22 +71,33 @@ type State = {
     }
     loading: boolean;
     newCount: number;
+    needSave: boolean;
 }
 
 export default () => {
-    const [{ storageCache, loading, localState }, setState] = useState<State>({
-        storageCache: {},
+    const [{ storageCache, loading, localState, needSave }, setState] = useState<State>({
+        storageCache: {
+            postfix: '',
+            prefix: '',
+            replace: {}
+        },
         localState: {
             postfix: '',
             prefix: '',
             replace: {}
         },
         newCount: 0,
-        loading: false
+        loading: false,
+        needSave: false
     });
 
     useEffect(() => {
-        const storageCache = { 'replace': { 'ZmVmZmVm': { from: 'feffef', to: '222' } } };
+        // const storageCache = { 'replace': { 'ZmVmZmVm': { from: 'feffef', to: '222' } } };
+        const storageCache = {
+            postfix: '',
+            prefix: '',
+            replace: {}
+        };
         browser.storage.sync.get().then((items) => {
             console.log('portal', items);
 
@@ -96,11 +110,15 @@ export default () => {
         }));
     }, []);
 
-    const handleSave = () => {
-        setState(prev => ({ ...prev, loading: true }));
-        // browser.storage.sync.set({ prefix: value });
-        setState(prev => ({ ...prev, loading: false }));
-    };
+    useEffect(() => {
+        if (JSON.stringify(localState) !== JSON.stringify(storageCache)) {
+            setState(prev => ({ ...prev, needSave: true }));
+        } else {
+            setState(prev => ({ ...prev, needSave: false }));
+        }
+    }, [localState.postfix, localState.prefix, Object.keys(localState.replace || {}).length]);
+
+
     console.log('portal', storageCache);
     const handleInputChange = (event: any) => {
         const { name, value, ariaLabel } = event.currentTarget;
@@ -146,6 +164,29 @@ export default () => {
             }
         }));
     }
+
+    const handleSave = () => {
+        setState(prev => ({ ...prev, loading: true }));
+        // remove temp keys from replace
+        const replace = Object.entries(localState.replace || {}).reduce((acc, [key, value]) => {
+            if (value.from === '') return acc;
+            if (key.startsWith('temp_')) {
+                const newKey = encode(value.from);
+                acc[newKey] = value;
+            } else {
+                acc[key] = value;
+            }
+            return acc;
+        }, {} as { [key: string]: { from: string; to: string } });
+
+        const newState = {
+            ...localState,
+            replace: replace
+        }
+
+        browser.storage.sync.set(newState);
+        setState(prev => ({ ...prev, loading: false }));
+    }
     return <Portal id={'chatgpt-improved-prompt-extension-portal'}><Container>
 
         <div className='flex flex-row justify-end mb-4'>
@@ -161,19 +202,23 @@ export default () => {
 
             <Tabs.Panel value="prefix" pt="xs">
                 <Textarea
-                    defaultValue={localState['prefix']}
                     label="Your prefix"
                     autosize
                     minRows={6}
+                    name='prefix'
+                    value={localState['prefix']}
+                    onChange={handleInputChange}
                 />
             </Tabs.Panel>
 
             <Tabs.Panel value="postfix" pt="xs">
                 <Textarea
-                    defaultValue={localState['postfix']}
                     label="Your postfix"
                     autosize
                     minRows={6}
+                    name='postfix'
+                    value={localState['postfix']}
+                    onChange={handleInputChange}
                 />
             </Tabs.Panel>
 
@@ -218,6 +263,8 @@ export default () => {
                 // @ts-ignore
                 color="dark.5"
                 variant="outline"
+                needSave={needSave}
+                disabled={!needSave}
                 onClick={handleSave} loading={loading}>Save</StyledButton></div>
     </Container></Portal>
 };
