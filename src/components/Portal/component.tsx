@@ -3,7 +3,7 @@ import browser from "webextension-polyfill";
 import { Tabs, Button, Textarea, ActionIcon, TextInput } from '@mantine/core';
 import styled from '@emotion/styled';
 import { IconX, IconCirclePlus, IconSquareRoundedX } from '@tabler/icons-react';
-import { encode, decode } from '../../util/encode'
+import { encode, decode, deepClone } from '../../util/encode'
 
 const Portal = styled.div`
 height: 100vh;
@@ -50,31 +50,49 @@ type State = {
         prefix?: any;
         postfix?: any;
         replace?: {
-            [key: string]: string;
+            [key: string]: {
+                from: string;
+                to: string;
+            }
+        }
+    },
+    localState: {
+        prefix?: any;
+        postfix?: any;
+        replace?: {
+            [key: string]: {
+                from: string;
+                to: string;
+            }
         }
     }
     loading?: boolean,
-    extraReplace: number;
 }
 
 export default () => {
-    const [{ storageCache, loading, extraReplace }, setState] = useState<State>({
-        storageCache: { 'replace': { 'NDNnMzVoLS0tLS0tLS0t': 'feffef' } },
-        loading: false,
-        extraReplace: 0
+    const [{ storageCache, loading, localState }, setState] = useState<State>({
+        storageCache: {},
+        localState: {
+            postfix: '',
+            prefix: '',
+            replace: {}
+        },
+        loading: false
     });
 
-    // useEffect(() => {
-    //     const storageCache = {};
-    //     browser.storage.sync.get().then((items) => {
-    //         console.log('portal', items);
+    useEffect(() => {
+        const storageCache = { 'replace': { 'ZmVmZmVm': { from: 'feffef', to: '222' } } };
+        browser.storage.sync.get().then((items) => {
+            console.log('portal', items);
 
-    //         // Copy the data retrieved from storage into storageCache.
-    //         Object.assign(storageCache, items);
-    //     });
-    //     console.log('portal', storageCache);
-    //     setState(prev => ({ ...prev, storageCache }));
-    // }, []);
+            // Copy the data retrieved from storage into storageCache.
+            Object.assign(storageCache, items);
+        });
+        console.log('portal', storageCache);
+        setState(prev => ({
+            ...prev, storageCache, localState: deepClone(storageCache)
+        }));
+    }, []);
     const handleAdd = (key: string) => {
 
     };
@@ -100,7 +118,7 @@ export default () => {
 
             <Tabs.Panel value="prefix" pt="xs">
                 <Textarea
-                    defaultValue={storageCache['prefix']}
+                    defaultValue={localState['prefix']}
                     label="Your prefix"
                     autosize
                     minRows={6}
@@ -109,7 +127,7 @@ export default () => {
 
             <Tabs.Panel value="postfix" pt="xs">
                 <Textarea
-                    defaultValue={storageCache['postfix']}
+                    defaultValue={localState['postfix']}
                     label="Your postfix"
                     autosize
                     minRows={6}
@@ -117,46 +135,35 @@ export default () => {
             </Tabs.Panel>
 
             <Tabs.Panel value="replace" pt="xs" className='overflow-y-auto max-h-52' >
-                {Object.keys(storageCache.replace || {}).filter(key =>
-                    key !== 'prefix' && key !== 'postfix')
-                    .map((key) => {
-                        const val = storageCache.replace?.[key];
-                        const someKey = decode(key);
+                {Object.keys(localState.replace || {})
+                    .map((_key) => {
+                        const [[from], [to]] = Object.entries(localState.replace?.[_key] || {});
+
                         return <div className='flex justify-between pt-3 items-end'>
                             <TextInput
                                 placeholder="my-api-key"
                                 label="Original text"
-                                defaultValue={someKey}
+                                aria-label='from'
+                                value={from}
+                                name={_key}
+                                onChange={handleIputChange}
                             />
                             <span className='pt-5 my-auto'>&#8594;</span>
                             <TextInput
                                 placeholder="xxx-xxx-xxx"
                                 label="Replace with"
-                                defaultValue={val}
+                                aria-label='to'
+                                name={_key}
+                                value={to}
+                                onChange={handleIputChange}
                             />
                             <ActionIcon aria-label='remove' className='m-1'>
                                 <IconSquareRoundedX />
                             </ActionIcon>
                         </div>
                     })}
-                {Array.from(Array(extraReplace).keys()).map((_, i) => {
-                    return <div className='flex justify-between pt-3 items-end'>
-                        <TextInput
-                            placeholder="my-api-key"
-                            label="Original text"
-                        />
-                        <span className='pt-5 my-auto'>&#8594;</span>
-                        <TextInput
-                            placeholder="xxx-xxx-xxx"
-                            label="Replace with"
-                        />
-                        <ActionIcon aria-label='remove' className='m-1'>
-                            <IconSquareRoundedX />
-                        </ActionIcon>
-                    </div>
-                })}
                 <div className='flex flex-row justify-center mt-5'>
-                    <ActionIcon aria-label='Add More' onClick={() => setState(prev => ({ ...prev, extraReplace: prev.extraReplace + 1 }))}>
+                    <ActionIcon aria-label='Add More' onClick={() => setState(prev => ({ ...prev, localState: { ...prev.localState, '': '' } }))}>
                         <IconCirclePlus />
                     </ActionIcon></div>
             </Tabs.Panel>

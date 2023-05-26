@@ -7,3 +7,7 @@ export const encode = (key: string) => {
 export const decode = (key: string) => {
     return decodeURIComponent(atob(key));
 }
+
+export const deepClone = (obj: any) => {
+    return JSON.parse(JSON.stringify(obj));
+}
