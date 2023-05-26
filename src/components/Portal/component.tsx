@@ -46,16 +46,18 @@ const StyledButton = styled(Button)`
 
 type State = {
     storageCache: {
-        prefix?: string;
-        postfix?: string;
-        [key: string]: string;
+        prefix?: any;
+        postfix?: any;
+        replace?: {
+            [key: string]: string;
+        }
     }
     loading?: boolean,
 }
 
 export default () => {
     const [{ storageCache, loading }, setState] = useState<State>({
-        storageCache: {},
+        storageCache: { 'r1': { original: 'feffef', replacer: '322323223' } },
         loading: false,
     });
 
@@ -120,6 +122,17 @@ export default () => {
                             <div>{someKey}</div> <div>{someVal}</div>
                         </div>
                     })}
+                <div className='flex justify-between'>
+                    <TextInput
+                        placeholder="my-api-key"
+                        label="Original text"
+                    />
+                    <span className='pt-5 my-auto'>&#8594;</span>
+                    <TextInput
+                        placeholder="xxx-xxx-xxx"
+                        label="Replace with"
+                    />
+                </div>
             </Tabs.Panel>
         </Tabs>
         <div className='flex flex-row justify-end mt1'>
