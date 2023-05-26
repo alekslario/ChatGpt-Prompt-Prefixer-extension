@@ -95,19 +95,16 @@ export default ({ closePortal = () => { } }: { closePortal: Function; }) => {
     });
 
     useEffect(() => {
-        // const storageCache = { 'replace': { 'ZmVmZmVm': { from: 'feffef', to: '222' } } };
         const storageCache = {
             postfix: '',
             prefix: '',
             replace: {}
         };
         browser.storage.sync.get().then((items) => {
-            console.log('portal', items);
 
             // Copy the data retrieved from storage into storageCache.
             Object.assign(storageCache, items);
         });
-        console.log('portal', storageCache);
         setState(prev => ({
             ...prev, storageCache, localState: deepClone(storageCache)
         }));
@@ -122,7 +119,6 @@ export default ({ closePortal = () => { } }: { closePortal: Function; }) => {
     }, [localState.postfix, localState.prefix, Object.keys(localState.replace || {}).length]);
 
 
-    console.log('portal', storageCache);
     const handleInputChange = (event: any) => {
         const { name, value, ariaLabel } = event.currentTarget;
         if (name === 'prefix' || name === 'postfix') {
