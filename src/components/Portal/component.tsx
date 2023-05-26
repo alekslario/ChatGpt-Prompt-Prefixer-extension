@@ -74,7 +74,7 @@ type State = {
     needSave: boolean;
 }
 
-export default () => {
+export default ({ closePortal }) => {
     const [{ storageCache, loading, localState, needSave }, setState] = useState<State>({
         storageCache: {
             postfix: '',
@@ -121,6 +121,7 @@ export default () => {
 
     console.log('portal', storageCache);
     const handleInputChange = (event: any) => {
+        if (loading) return;
         const { name, value, ariaLabel } = event.currentTarget;
         if (name === 'prefix' || name === 'postfix') {
             setState(prev => ({ ...prev, localState: { ...prev.localState, [name]: value } }));
@@ -139,6 +140,7 @@ export default () => {
     }
 
     const handleAddMore = () => {
+        if (loading) return;
         setState(prev => ({
             ...prev,
             newCount: prev.newCount + 1,
@@ -154,6 +156,7 @@ export default () => {
     };
 
     const handleRemove = (id: string) => {
+        if (loading) return;
         delete localState.replace?.[id];
         setState(prev => ({
             ...prev,
@@ -187,8 +190,15 @@ export default () => {
         browser.storage.sync.set(newState);
         setState(prev => ({ ...prev, loading: false }));
     }
-    return <Portal id={'chatgpt-improved-prompt-extension-portal'}><Container>
 
+    const handleClose = () => {
+        if (needSave) {
+            if (!window.confirm('You have unsaved changes. Are you sure you want to close?')) return;
+        }
+
+    }
+    return <Portal id={'chatgpt-improved-prompt-extension-portal'}><Container>
+        <div className='flex'></div>
         <div className='flex flex-row justify-end mb-4'>
             <ActionIcon aria-label='close'>
                 <IconX />

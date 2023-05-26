@@ -7,7 +7,7 @@ export default () => {
     const [show, setShow] = useState(false)
     const handleClick = () => { setShow(prev => !prev) }
     return <><button onClick={handleClick}><FilterSvg /></button>{show && createPortal(
-        <Portal />,
+        <Portal closePortal={() => { setShow(false) }} />,
         document.body
     )}</>
 
