@@ -76,7 +76,7 @@ type State = {
     requestApproval: boolean;
 }
 
-export default ({ closePortal }: { closePortal: Function; }) => {
+export default ({ closePortal = () => { } }: { closePortal: Function; }) => {
     const [{ storageCache, loading, localState, needSave, requestApproval }, setState] = useState<State>({
         storageCache: {
             postfix: '',
@@ -91,7 +91,7 @@ export default ({ closePortal }: { closePortal: Function; }) => {
         newCount: 0,
         loading: false,
         needSave: false,
-        requestApproval: false,
+        requestApproval: true,
     });
 
     useEffect(() => {
@@ -124,7 +124,6 @@ export default ({ closePortal }: { closePortal: Function; }) => {
 
     console.log('portal', storageCache);
     const handleInputChange = (event: any) => {
-        if (loading) return;
         const { name, value, ariaLabel } = event.currentTarget;
         if (name === 'prefix' || name === 'postfix') {
             setState(prev => ({ ...prev, localState: { ...prev.localState, [name]: value } }));
@@ -143,7 +142,7 @@ export default ({ closePortal }: { closePortal: Function; }) => {
     }
 
     const handleAddMore = () => {
-        if (loading) return;
+        if (requestApproval || loading) return;
         setState(prev => ({
             ...prev,
             newCount: prev.newCount + 1,
@@ -159,7 +158,7 @@ export default ({ closePortal }: { closePortal: Function; }) => {
     };
 
     const handleRemove = (id: string) => {
-        if (loading) return;
+        if (requestApproval || loading) return;
         delete localState.replace?.[id];
         setState(prev => ({
             ...prev,
@@ -171,7 +170,8 @@ export default ({ closePortal }: { closePortal: Function; }) => {
         }));
     }
 
-    const handleSave = () => {
+    const handleSave = async () => {
+        if (loading) return;
         setState(prev => ({ ...prev, loading: true }));
         // remove temp keys from replace
         const replace = Object.entries(localState.replace || {}).reduce((acc, [key, value]) => {
@@ -190,11 +190,12 @@ export default ({ closePortal }: { closePortal: Function; }) => {
             replace: replace
         }
 
-        browser.storage.sync.set(newState);
+        await browser.storage.sync.set(newState);
         setState(prev => ({ ...prev, loading: false, needSave: false }));
     }
 
     const handleClose = () => {
+        if (requestApproval || loading) return;
         if (needSave) {
             setState(prev => ({ ...prev, requestApproval: true }));
         } else {
@@ -203,12 +204,23 @@ export default ({ closePortal }: { closePortal: Function; }) => {
 
     }
     return <Portal id={'chatgpt-improved-prompt-extension-portal'}><Container>
-        {requestApproval && <div className='absolute z-10 left-2/4 top-2/4'>some text</div>}
+        {requestApproval && <div className=' bg-white rounded-md p-5 z-10 absolute -translate-x-2/4 -translate-y-2/4 m-auto top-2/4 left-2/4 shadow-[0_1px_6px_rgba(32,33,36,0.28)] border-[rgba(223,225,229,0)]'>
+            <Button
+                color="dark.5"
+                variant="outline"
+                className='mr-5'
+                onClick={() => closePortal()}>
+                Discard
+            </Button>
+            <Button color="dark.5"
+                variant="outline"
+                onClick={() => setState(prev => ({ ...prev, requestApproval: false }))}>Cancel</Button>
+        </div>}
         <div className='flex flex-row justify-end mb-4'>
-            <ActionIcon aria-label='close' onClick={handleClose}>
+            <ActionIcon aria-label='close' onClick={handleClose} disabled={requestApproval || loading}>
                 <IconX />
             </ActionIcon></div>
-        <Tabs defaultValue="prefix" className='grow'>
+        <Tabs defaultValue="prefix" className='grow' >
             <Tabs.List>
                 <StyledTabs value="prefix" >Prefix</StyledTabs>
                 <StyledTabs value="postfix" >Postfix</StyledTabs>
@@ -223,6 +235,7 @@ export default ({ closePortal }: { closePortal: Function; }) => {
                     name='prefix'
                     value={localState['prefix']}
                     onChange={handleInputChange}
+                    disabled={requestApproval || loading}
                 />
             </Tabs.Panel>
 
@@ -234,6 +247,7 @@ export default ({ closePortal }: { closePortal: Function; }) => {
                     name='postfix'
                     value={localState['postfix']}
                     onChange={handleInputChange}
+                    disabled={requestApproval || loading}
                 />
             </Tabs.Panel>
 
@@ -250,6 +264,7 @@ export default ({ closePortal }: { closePortal: Function; }) => {
                                 value={obj?.from}
                                 name={_key}
                                 onChange={handleInputChange}
+                                disabled={requestApproval || loading}
                             />
                             <span className='pt-5 my-auto'>&#8594;</span>
                             <TextInput
@@ -259,14 +274,15 @@ export default ({ closePortal }: { closePortal: Function; }) => {
                                 name={_key}
                                 value={obj?.to}
                                 onChange={handleInputChange}
+                                disabled={requestApproval || loading}
                             />
-                            <ActionIcon aria-label='remove' className='m-1' onClick={() => handleRemove(_key)}>
+                            <ActionIcon disabled={requestApproval || loading} aria-label='remove' className='m-1' onClick={() => handleRemove(_key)}>
                                 <IconSquareRoundedX />
                             </ActionIcon>
                         </div>
                     })}
                 <div className='flex flex-row justify-center mt-5'>
-                    <ActionIcon aria-label='Add More' onClick={handleAddMore}>
+                    <ActionIcon aria-label='Add More' onClick={handleAddMore} disabled={requestApproval || loading}>
                         <IconCirclePlus />
                     </ActionIcon></div>
             </Tabs.Panel>

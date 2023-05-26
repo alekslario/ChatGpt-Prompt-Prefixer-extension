@@ -20,6 +20,13 @@ const browser: any = {
   storage: {
     sync: {
       get: (key?: any) => { return Promise.resolve({}) },
+      set: (key?: any) => {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            resolve('f')
+          }, 2000);
+        })
+      },
     }
   }
 };
