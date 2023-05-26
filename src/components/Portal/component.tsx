@@ -28,6 +28,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  position: relative;
 `;
 
 
@@ -202,7 +203,7 @@ export default ({ closePortal }: { closePortal: Function; }) => {
 
     }
     return <Portal id={'chatgpt-improved-prompt-extension-portal'}><Container>
-        {requestApproval && <div className='flex'></div>}
+        {requestApproval && <div className='absolute z-10 left-2/4 top-2/4'>some text</div>}
         <div className='flex flex-row justify-end mb-4'>
             <ActionIcon aria-label='close' onClick={handleClose}>
                 <IconX />
