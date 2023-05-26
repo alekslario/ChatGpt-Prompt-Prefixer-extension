@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import browser from "webextension-polyfill";
-import { Tabs, Button, Textarea, ActionIcon, TextInput, Checkbox } from '@mantine/core';
+import { Tabs, Button, Textarea, ActionIcon, TextInput, Checkbox, HoverCard, Text } from '@mantine/core';
 import styled from '@emotion/styled';
 import { IconX, IconCirclePlus, IconSquareRoundedX, IconRegex } from '@tabler/icons-react';
 import { encode, decode, deepClone } from '../../util/encode'
@@ -54,6 +54,9 @@ const StyledCheckbox = styled(Checkbox)`
    stroke:#242731;
     
 }
+& input{
+    cursor: pointer;
+}
 & input:checked {
     background-color: #242731;
     border-color: #242731;
@@ -69,6 +72,7 @@ type State = {
             [key: string]: {
                 from: string;
                 to: string;
+                regex: boolean;
             }
         }
     },
@@ -79,6 +83,7 @@ type State = {
             [key: string]: {
                 from: string;
                 to: string;
+                regex: boolean;
             }
         }
     }
@@ -88,8 +93,17 @@ type State = {
     requestApproval: boolean;
 }
 
+const testRegularExp = (str: string) => {
+    try {
+        new RegExp(str);
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
 export default ({ closePortal = () => { } }: { closePortal: Function; }) => {
-    const [{ storageCache, loading, localState, needSave, requestApproval }, setState] = useState<State>({
+    const [{ storageCache, loading, localState, needSave, requestApproval, checkBoxes }, setState] = useState<State>({
         storageCache: {
             postfix: '',
             prefix: '',
@@ -158,7 +172,8 @@ export default ({ closePortal = () => { } }: { closePortal: Function; }) => {
                 ...prev.localState, replace: {
                     ...prev.localState.replace, [`temp_${prev.newCount}`]: {
                         from: '',
-                        to: ''
+                        to: '',
+                        regex: false
                     }
                 }
             }
@@ -211,6 +226,20 @@ export default ({ closePortal = () => { } }: { closePortal: Function; }) => {
         }
 
     }
+
+    const handleChecked = (key: string, checked: boolean) => {
+
+        setState(prev => ({
+            ...prev, localState: {
+                ...prev.localState, replace:
+                {
+                    ...prev.localState.replace, [key]:
+                        { ...prev.localState.replace?.[key] as any, regex: checked }
+                }
+            }
+        }));
+    }
+
     return <Portal id={'chatgpt-improved-prompt-extension-portal'}><Container>
         {requestApproval && <div className=' bg-white rounded-md p-5 z-10 absolute -translate-x-2/4 -translate-y-2/4 m-auto top-2/4 left-2/4 shadow-[0_1px_6px_rgba(32,33,36,0.28)] border-[rgba(223,225,229,0)]'>
             <Button
@@ -260,7 +289,7 @@ export default ({ closePortal = () => { } }: { closePortal: Function; }) => {
             </Tabs.Panel>
 
             <Tabs.Panel value="replace" pt="xs" className='overflow-y-auto w-full pr-[10px] max-h-[200px]' style={{ 'scrollbarGutter': 'stable' }} >
-                {Object.keys(localState.replace || {}).length === 0 && <p className='m-5'>Replacements are executed in order, from top to bottom. Regex is accepted. </p>}
+                {Object.keys(localState.replace || {}).length === 0 && <p className='m-5'> Replacements are executed in order, from top to bottom. Regular expressions are accepted.  </p>}
 
                 {Object.keys(localState.replace || {})
                     .map((_key) => {
@@ -275,6 +304,7 @@ export default ({ closePortal = () => { } }: { closePortal: Function; }) => {
                                 name={_key}
                                 onChange={handleInputChange}
                                 disabled={requestApproval || loading}
+                                error={testRegularExp(obj?.from as string) ? "Invalid email" : ''}
                             />
                             <span className='pt-5 my-auto'>&#8594;</span>
                             <TextInput
@@ -287,7 +317,22 @@ export default ({ closePortal = () => { } }: { closePortal: Function; }) => {
                                 disabled={requestApproval || loading}
                             />
                             <span className='flex items-center pl-2.5'>
-                                <StyledCheckbox icon={IconRegex} aria-label="Regex" indeterminate />
+                                <HoverCard width={280} shadow="md">
+                                    <HoverCard.Target>
+                                        <StyledCheckbox icon={IconRegex} aria-label="Regex" indeterminate
+                                            checked={obj?.regex} onChange={(event) => {
+                                                const value = event.currentTarget.checked;
+                                                handleChecked(_key, value);
+                                            }}
+                                        />
+                                    </HoverCard.Target>
+                                    <HoverCard.Dropdown>
+                                        <Text size="sm">
+                                            Check this checkbox to treat the original text on the left as a regular expression.
+                                        </Text>
+                                    </HoverCard.Dropdown>
+                                </HoverCard>
+
                                 <ActionIcon disabled={requestApproval || loading} aria-label='remove' className='m-1' onClick={() => handleRemove(_key)} color="dark">
                                     <IconSquareRoundedX />
                                 </ActionIcon>
@@ -295,7 +340,7 @@ export default ({ closePortal = () => { } }: { closePortal: Function; }) => {
                         </div>
                     })}
                 <div className='flex flex-row justify-center mt-5'>
-                    <ActionIcon aria-label='Add More' onClick={handleAddMore} disabled={requestApproval || loading}>
+                    <ActionIcon aria-label='Add More' color="dark" onClick={handleAddMore} disabled={requestApproval || loading}>
                         <IconCirclePlus />
                     </ActionIcon></div>
             </Tabs.Panel>
