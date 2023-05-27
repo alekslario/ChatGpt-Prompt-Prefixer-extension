@@ -23,7 +23,7 @@ const Container = styled.div`
   min-width: 300px;
   min-height: 400px;
   background-color: #fff;
-  border-radius: 10px;
+  /* border-radius: 10px; */
   height: 400px;
   width: 500px;
   padding: 30px;
@@ -66,42 +66,6 @@ ${({ needSave }) => (needSave ? 'background-color: #242731; color: #fff;' : ''
 
 const StyledCheckbox = styled(Checkbox)`
 
-& svg {
-   stroke:#242731;
-   top: 7px;
-    
-}
-& input{
-    cursor: pointer;
-    border-radius: 5px;
-    height: 19px;
-    width: 19px;
-    border : 2px solid #242731;
-}
-& input:checked + svg{
-  stroke:#fff;
-}
-
-& input:focus{
-   box-shadow: none;
-   background-color: #fff;
-}
-
-& input:checked:focus{
-   background-color: #242731;
-    border-color: #242731;
-    box-shadow: 0 0 0 3px #c6cbdd;
-}
-
-& input:checked:hover{
-   background-color: #242731;
-    border-color: #242731;
-    box-shadow: 0 0 0 3px #c6cbdd;
-}
-& .mantine-Checkbox-body{
-        margin: 0 0 7px 9px;
-        color: #242731;
-}
 & input:checked {
     background-color: #242731;
     border-color: #242731;
@@ -341,7 +305,7 @@ export default ({ closePortal }: { closePortal: Function; }) => {
         }));
     }
 
-    return <Portal id={'chatgpt-improved-prompt-extension-portal'}><Container>
+    return <Container>
         {requestApproval && <PopUp >
             <Button
                 color="dark.5"
@@ -403,19 +367,19 @@ export default ({ closePortal }: { closePortal: Function; }) => {
                                 aria-label='from'
                                 value={obj?.from}
                                 name={_key}
-                                style={{ marginLeft: '1px' }}
+
                                 onChange={handleInputChange}
                                 disabled={requestApproval || loading}
                                 error={obj?.regex ?
                                     testRegularExp(obj?.from as string).length === 2 ? "" : 'Invalid regex'
                                     : ''}
                             />
-                            <span style={{ padding: '6px' }}>&#8594;</span>
+                            <span style={{ padding: '7px' }}>→</span>
                             <TextInput
                                 placeholder="xxx-xxx-xxx"
                                 label="Replace with"
                                 aria-label='to'
-                                style={{ marginLeft: '1px' }}
+
                                 name={_key}
                                 value={obj?.to}
                                 onChange={handleInputChange}
@@ -460,5 +424,5 @@ export default ({ closePortal }: { closePortal: Function; }) => {
                 needSave={needSave}
                 disabled={!needSave}
                 onClick={handleSave} loading={loading}>Save</StyledButton></div>
-    </Container></Portal>
+    </Container>
 };

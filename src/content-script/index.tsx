@@ -29,25 +29,6 @@ const mount = () => {
     span.id = 'chatgpt-improved-prompt-extension'
     if (form) {
       form.appendChild(span)
-      const submitButton: any = document.querySelector('form button');
-
-      if (submitButton)
-        submitButton.onclick = (e: any) => {
-          console.log('e', JSON.stringify(e));
-
-          e.preventDefault();
-          e.stopPropagation();
-          console.log('clicked submit button');
-          browser.storage.sync.get().then((items) => {
-            const node = document.querySelector('textarea')
-            if (node) {
-              const value = node.value;
-              node.value = items.postfix + value + items.prefix;
-            }
-
-            console.log('items', items);
-          });
-        }
     }
 
     const container = document.getElementById('chatgpt-improved-prompt-extension');

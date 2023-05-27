@@ -6,7 +6,12 @@ body {
   @apply bg-gray-200;
 }
 
-#chatgpt-improved-prompt-extension {
+html {
+  height: 400px;
+  width: 500px;
+}
+
+/* #chatgpt-improved-prompt-extension {
   width: min-content;
   display: "flex";
   flex-direction: "row";
@@ -16,4 +21,4 @@ body {
     align-items: "center";
     padding-bottom: "0px";
   }
-}
+} */
