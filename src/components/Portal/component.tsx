@@ -103,11 +103,32 @@ type State = {
 }
 
 const testRegularExp = (str: string) => {
-    if (! /^\/.+\/i|g|m|s|u|y]?$/.test(str)) {
-        return false;
+    const rgxArray = str.split('');
+    if (rgxArray.shift() !== '/') return false;
+    const flags = {} as { [key: string]: number };
+    let valid = false;
+    while (true) {
+        let lastChar = rgxArray.pop();
+        if (lastChar === '/' && rgxArray.join('').length > 0) {
+            valid = true;
+            break;
+        } else if (!lastChar || flags[lastChar]) {
+            //not valid
+            break;
+
+        } else if ('gimsuy'.includes(lastChar)) {
+            flags[lastChar] = 1;
+            continue;
+        } else {
+            //not valid
+            break;
+        }
+
     }
+
+    if (!valid) return false;
     try {
-        new RegExp(str, flags);
+        new RegExp(str, Object.keys(flags).join(''));
         return true;
     } catch (error) {
         return false;
@@ -304,7 +325,7 @@ export default ({ closePortal = () => { } }: { closePortal: Function; }) => {
             </Tabs.Panel>
 
             <Tabs.Panel value="replace" pt="xs" className='overflow-y-auto w-full pr-[10px] max-h-[200px]' style={{ 'scrollbarGutter': 'stable' }} >
-                {Object.keys(localState.replace || {}).length === 0 && <p className='m-5'> Replacements are executed in order, from top to bottom. Regular expressions are accepted.  </p>}
+                {Object.keys(localState.replace || {}).length === 0 && <p className='m-5'> Replacements are executed in order, from top to bottom. Regular expressions are accepted.</p>}
 
                 {Object.keys(localState.replace || {})
                     .map((_key) => {
