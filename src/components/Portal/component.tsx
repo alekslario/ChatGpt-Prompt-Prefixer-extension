@@ -354,7 +354,7 @@ export default ({ closePortal }: { closePortal: Function; }) => {
             </Tabs.Panel>
 
             <Tabs.Panel value="replace" pt="xs" className='overflow-y-auto w-full pr-[10px]' style={{ 'scrollbarGutter': 'stable', maxHeight: '200px' }} >
-                {Object.keys(localState.replace || {}).length === 0 && <p className='m-5'> Replacements are executed in order, from top to bottom. Invalid regular expressions and empty strings are discarded on save.</p>}
+                {Object.keys(localState.replace || {}).length === 0 && <p className='m-5'> Strings and regular expressions are accepted. Invalid regular expressions and empty strings are discarded on save.</p>}
 
                 {Object.keys(localState.replace || {})
                     .map((_key) => {
