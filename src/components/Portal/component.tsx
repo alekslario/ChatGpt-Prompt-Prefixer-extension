@@ -60,13 +60,29 @@ ${({ needSave }) => (needSave ? 'background-color: #242731; color: #fff;' : ''
     )}
 `;
 
-const StyledCheckbox = styled(Checkbox)`
-& input svg {
+const StyledCheckbox = styled(Checkbox) <{ isChecked: boolean; }>`
+
+& svg {
    stroke:#242731;
+   top: 7px;
     
 }
+${({ isChecked }) => (isChecked ? 'stroke:#fff;' : 'stroke:#242731;'
+    )}
 & input{
     cursor: pointer;
+    border-radius: 5px;
+    height: 19px;
+    width: 19px;
+}
+& input:focus{
+     outline: none;
+     box-shadow: none;
+     background-color: #242731;
+}
+& .mantine-Checkbox-body{
+        margin: 0 0 7px 9px;
+        color: #242731;
 }
 & input:checked {
     background-color: #242731;
@@ -391,7 +407,7 @@ export default ({ closePortal }: { closePortal: Function; }) => {
                             <span className='flex items-center pl-2.5'>
                                 <HoverCard width={280} shadow="md">
                                     <HoverCard.Target>
-                                        <StyledCheckbox icon={IconRegex} aria-label="Regex" indeterminate
+                                        <StyledCheckbox icon={IconRegex} aria-label="Regex" indeterminate isChecked={!!obj?.regex}
                                             checked={obj?.regex} onChange={(event) => {
                                                 const value = event.currentTarget.checked;
                                                 handleChecked(_key, value);

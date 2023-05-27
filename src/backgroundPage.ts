@@ -50,11 +50,7 @@ browser.runtime.onMessage.addListener((request: { popupMounted: boolean }) => {
 
 
 
-try {
-  browser.webNavigation.onHistoryStateUpdated.addListener(function (details) {
-    browser.tabs.sendMessage(details.tabId, { name: "urlChange" })
-  },
-    { url: [{ urlMatches: 'https://chat.openai.com/*' }] });
-} catch (error) {
-
-}
+browser.webNavigation.onHistoryStateUpdated.addListener(function (details) {
+  browser.tabs.sendMessage(details.tabId, { name: "urlChange" })
+},
+  { url: [{ urlMatches: 'https://chat.openai.com/*' }] });
