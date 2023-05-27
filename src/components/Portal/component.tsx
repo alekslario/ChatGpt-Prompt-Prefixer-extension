@@ -6,17 +6,17 @@ import { IconX, IconCirclePlus, IconSquareRoundedX, IconRegex } from '@tabler/ic
 import { encode, decode, deepClone } from '../../util/encode'
 
 const Portal = styled.div`
-top: 0;
-left: 0;
-height: 100vh;
-width: 100vw;
-position: fixed;
-background-color: rgba(0,0,0,0.1);
-display: flex;
-flex-direction: column;
-justify-content: center;
-align-items: center;
-z-index: 10000000;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    position: fixed;
+    background-color: rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000000;
 `
 
 const Container = styled.div`
@@ -40,6 +40,10 @@ const Container = styled.div`
   .mantine-InputWrapper-root{
     position: relative;
   }
+  & input {
+    border-radius: 5px;
+
+  }
 `;
 
 
@@ -60,15 +64,13 @@ ${({ needSave }) => (needSave ? 'background-color: #242731; color: #fff;' : ''
     )}
 `;
 
-const StyledCheckbox = styled(Checkbox) <{ isChecked: boolean; }>`
+const StyledCheckbox = styled(Checkbox)`
 
 & svg {
    stroke:#242731;
    top: 7px;
     
 }
-${({ isChecked }) => (isChecked ? 'stroke:#fff;' : 'stroke:#242731;'
-    )}
 & input{
     cursor: pointer;
     border-radius: 5px;
@@ -176,17 +178,17 @@ const testRegularExp = (str: string) => {
 }
 
 const PopUp = styled.div`
-box-shadow: 0 1px 6px rgba(32,33,36,0.28);
-border: 1px solid rgba(223,225,229,0);
-position: absolute; 
-top: 50%;
-left: 50%;
-z-index: 10; 
-padding: 1.25rem; 
-background-color: #ffffff; 
-transform: translate(-50%, -50%);
-border-radius: 0.375rem; 
-margin: auto;
+    box-shadow: 0 1px 6px rgba(32,33,36,0.28);
+    border: 1px solid rgba(223,225,229,0);
+    position: absolute; 
+    top: 50%;
+    left: 50%;
+    z-index: 10; 
+    padding: 1.25rem; 
+    background-color: #ffffff; 
+    transform: translate(-50%, -50%);
+    border-radius: 0.375rem; 
+    margin: auto;
 `
 
 export default ({ closePortal }: { closePortal: Function; }) => {
@@ -216,25 +218,21 @@ export default ({ closePortal }: { closePortal: Function; }) => {
         browser.storage.sync.get().then((items) => {
 
             // Copy the data retrieved from storage into storageCache.
-            console.log('items', items);
             Object.assign(storageCache, items);
+            const localState = deepClone(storageCache);
+            setState(prev => ({
+                ...prev, storageCache, localState
+            }));
         });
-        const localState = deepClone(storageCache);
-        console.log('in a hook', localState, storageCache);
-
-        setState(prev => ({
-            ...prev, storageCache, localState
-        }));
     }, []);
 
     useEffect(() => {
-        console.log('localState', localState, storageCache)
         if (JSON.stringify(localState) !== JSON.stringify(storageCache)) {
             setState(prev => ({ ...prev, needSave: true }));
         } else {
             setState(prev => ({ ...prev, needSave: false }));
         }
-    }, [localState.postfix, localState.prefix, Object.keys(localState.replace || {}).length]);
+    }, [btoa(JSON.stringify(localState))]);
 
     const handleInputChange = (event: any) => {
         const { name, value, ariaLabel } = event.currentTarget;
@@ -316,7 +314,6 @@ export default ({ closePortal }: { closePortal: Function; }) => {
             ...localState,
             replace: replace
         }
-        console.log('newState', newState);
         await browser.storage.sync.set(newState);
         closePortal();
     }
@@ -371,8 +368,8 @@ export default ({ closePortal }: { closePortal: Function; }) => {
             <Tabs.Panel value="prefix" pt="xs">
                 <Textarea
                     label="Your prefix"
-                    autosize
                     minRows={6}
+                    maxRows={6}
                     name='prefix'
                     value={localState['prefix']}
                     onChange={handleInputChange}
@@ -383,8 +380,8 @@ export default ({ closePortal }: { closePortal: Function; }) => {
             <Tabs.Panel value="postfix" pt="xs">
                 <Textarea
                     label="Your postfix"
-                    autosize
                     minRows={6}
+                    maxRows={6}
                     name='postfix'
                     value={localState['postfix']}
                     onChange={handleInputChange}
@@ -392,7 +389,7 @@ export default ({ closePortal }: { closePortal: Function; }) => {
                 />
             </Tabs.Panel>
 
-            <Tabs.Panel value="replace" pt="xs" className='overflow-y-auto w-full pr-[10px] max-h-[200px]' style={{ 'scrollbarGutter': 'stable' }} >
+            <Tabs.Panel value="replace" pt="xs" className='overflow-y-auto w-full pr-[10px]' style={{ 'scrollbarGutter': 'stable', maxHeight: '200px' }} >
                 {Object.keys(localState.replace || {}).length === 0 && <p className='m-5'> Replacements are executed in order, from top to bottom. Invalid regular expressions and empty strings are discarded on save.</p>}
 
                 {Object.keys(localState.replace || {})
@@ -406,7 +403,7 @@ export default ({ closePortal }: { closePortal: Function; }) => {
                                 aria-label='from'
                                 value={obj?.from}
                                 name={_key}
-                                style={{ borderRadius: '5px' }}
+                                style={{ marginLeft: '1px' }}
                                 onChange={handleInputChange}
                                 disabled={requestApproval || loading}
                                 error={obj?.regex ?
@@ -418,7 +415,7 @@ export default ({ closePortal }: { closePortal: Function; }) => {
                                 placeholder="xxx-xxx-xxx"
                                 label="Replace with"
                                 aria-label='to'
-                                style={{ borderRadius: '5px' }}
+                                style={{ marginLeft: '1px' }}
                                 name={_key}
                                 value={obj?.to}
                                 onChange={handleInputChange}
@@ -427,7 +424,7 @@ export default ({ closePortal }: { closePortal: Function; }) => {
                             <span className='flex items-center pl-2.5'>
                                 <HoverCard width={280} shadow="md">
                                     <HoverCard.Target>
-                                        <StyledCheckbox icon={IconRegex} aria-label="Regex" indeterminate isChecked={!!obj?.regex}
+                                        <StyledCheckbox icon={IconRegex} aria-label="Regex" indeterminate
                                             checked={obj?.regex} onChange={(event) => {
                                                 const value = event.currentTarget.checked;
                                                 handleChecked(_key, value);
