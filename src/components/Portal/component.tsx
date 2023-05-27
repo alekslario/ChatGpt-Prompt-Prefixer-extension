@@ -81,7 +81,9 @@ type State = {
             [key: string]: {
                 from: string;
                 to: string;
-                regex: boolean;
+                regex: string;
+                regexBody: string;
+                regexFlags: string;
             }
         }
     },
@@ -92,7 +94,9 @@ type State = {
             [key: string]: {
                 from: string;
                 to: string;
-                regex: boolean;
+                regex: string;
+                regexBody: string;
+                regexFlags: string;
             }
         }
     }
@@ -104,7 +108,7 @@ type State = {
 
 const testRegularExp = (str: string) => {
     const rgxArray = str.split('');
-    if (rgxArray.shift() !== '/') return false;
+    if (rgxArray.shift() !== '/') return [];
     const flags = {} as { [key: string]: number };
     let valid = false;
     while (true) {
@@ -125,18 +129,19 @@ const testRegularExp = (str: string) => {
         }
 
     }
-
-    if (!valid) return false;
+    if (!valid) return [];
     try {
-        new RegExp(str, Object.keys(flags).join(''));
-        return true;
+        const flagsString = Object.keys(flags).join('');
+        const bodyString = rgxArray.join('');
+        new RegExp(bodyString, flagsString);
+        return [bodyString, flagsString];
     } catch (error) {
-        return false;
+        return [];
     }
 }
 
 export default ({ closePortal = () => { } }: { closePortal: Function; }) => {
-    const [{ storageCache, loading, localState, needSave, requestApproval, checkBoxes }, setState] = useState<State>({
+    const [{ storageCache, loading, localState, needSave, requestApproval }, setState] = useState<State>({
         storageCache: {
             postfix: '',
             prefix: '',
@@ -150,7 +155,7 @@ export default ({ closePortal = () => { } }: { closePortal: Function; }) => {
         newCount: 0,
         loading: false,
         needSave: false,
-        requestApproval: true,
+        requestApproval: true
     });
 
     useEffect(() => {
@@ -176,7 +181,6 @@ export default ({ closePortal = () => { } }: { closePortal: Function; }) => {
             setState(prev => ({ ...prev, needSave: false }));
         }
     }, [localState.postfix, localState.prefix, Object.keys(localState.replace || {}).length]);
-
 
     const handleInputChange = (event: any) => {
         const { name, value, ariaLabel } = event.currentTarget;
@@ -206,7 +210,9 @@ export default ({ closePortal = () => { } }: { closePortal: Function; }) => {
                     ...prev.localState.replace, [`temp_${prev.newCount}`]: {
                         from: '',
                         to: '',
-                        regex: false
+                        regex: '',
+                        regexBody: '',
+                        regexFlags: ''
                     }
                 }
             }
@@ -228,13 +234,21 @@ export default ({ closePortal = () => { } }: { closePortal: Function; }) => {
 
     const handleSave = async () => {
         if (loading) return;
-        Object.entries(localState.replace || {}).map(([key, value]) => {
-            const { } = value;
-        }, {});
+
         setState(prev => ({ ...prev, loading: true }));
         // remove temp keys from replace
         const replace = Object.entries(localState.replace || {}).reduce((acc, [key, value]) => {
             if (value.from === '') return acc;
+
+            if (value.regex) {
+                const passed = testRegularExp(value.from);
+                if (passed.length === 2) {
+                    value.regexBody = passed[0];
+                    value.regexFlags = passed[1];
+                } else {
+                    return acc;
+                }
+            }
             if (key.startsWith('temp_')) {
                 const newKey = encode(value.from);
                 acc[newKey] = value;
@@ -248,7 +262,7 @@ export default ({ closePortal = () => { } }: { closePortal: Function; }) => {
             ...localState,
             replace: replace
         }
-
+        console.log('newState', newState);
         await browser.storage.sync.set(newState);
         setState(prev => ({ ...prev, loading: false, needSave: false }));
     }
@@ -264,9 +278,9 @@ export default ({ closePortal = () => { } }: { closePortal: Function; }) => {
     }
 
     const handleChecked = (key: string, checked: boolean) => {
-
         setState(prev => ({
-            ...prev, localState: {
+            ...prev,
+            localState: {
                 ...prev.localState, replace:
                 {
                     ...prev.localState.replace, [key]:
@@ -325,7 +339,7 @@ export default ({ closePortal = () => { } }: { closePortal: Function; }) => {
             </Tabs.Panel>
 
             <Tabs.Panel value="replace" pt="xs" className='overflow-y-auto w-full pr-[10px] max-h-[200px]' style={{ 'scrollbarGutter': 'stable' }} >
-                {Object.keys(localState.replace || {}).length === 0 && <p className='m-5'> Replacements are executed in order, from top to bottom. Regular expressions are accepted.</p>}
+                {Object.keys(localState.replace || {}).length === 0 && <p className='m-5'> Replacements are executed in order, from top to bottom. Invalid regular expressions and empty strings are discarded on save.</p>}
 
                 {Object.keys(localState.replace || {})
                     .map((_key) => {
@@ -341,7 +355,7 @@ export default ({ closePortal = () => { } }: { closePortal: Function; }) => {
                                 onChange={handleInputChange}
                                 disabled={requestApproval || loading}
                                 error={obj?.regex ?
-                                    testRegularExp(obj?.from as string) ? "" : 'Invalid regex'
+                                    testRegularExp(obj?.from as string).length === 2 ? "" : 'Invalid regex'
                                     : ''}
                             />
                             <span className='pt-5 my-auto'>&#8594;</span>
