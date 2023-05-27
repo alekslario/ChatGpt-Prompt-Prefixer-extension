@@ -29,6 +29,15 @@ const Container = styled.div`
   flex-direction: column;
   justify-content: space-between;
   position: relative;
+  .mantine-TextInput-error{
+    position: absolute;
+  }
+  .mantine-Input-wrapper{
+    margin-bottom: 0 !important;
+  }
+  .mantine-InputWrapper-root{
+    position: relative;
+  }
 `;
 
 
@@ -94,8 +103,11 @@ type State = {
 }
 
 const testRegularExp = (str: string) => {
+    if (! /^\/.+\/i|g|m|s|u|y]?$/.test(str)) {
+        return false;
+    }
     try {
-        new RegExp(str);
+        new RegExp(str, flags);
         return true;
     } catch (error) {
         return false;
@@ -195,6 +207,9 @@ export default ({ closePortal = () => { } }: { closePortal: Function; }) => {
 
     const handleSave = async () => {
         if (loading) return;
+        Object.entries(localState.replace || {}).map(([key, value]) => {
+            const { } = value;
+        }, {});
         setState(prev => ({ ...prev, loading: true }));
         // remove temp keys from replace
         const replace = Object.entries(localState.replace || {}).reduce((acc, [key, value]) => {
@@ -304,7 +319,9 @@ export default ({ closePortal = () => { } }: { closePortal: Function; }) => {
                                 name={_key}
                                 onChange={handleInputChange}
                                 disabled={requestApproval || loading}
-                                error={testRegularExp(obj?.from as string) ? "Invalid email" : ''}
+                                error={obj?.regex ?
+                                    testRegularExp(obj?.from as string) ? "" : 'Invalid regex'
+                                    : ''}
                             />
                             <span className='pt-5 my-auto'>&#8594;</span>
                             <TextInput
