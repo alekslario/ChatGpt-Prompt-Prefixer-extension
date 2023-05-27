@@ -143,6 +143,20 @@ const testRegularExp = (str: string) => {
     }
 }
 
+const PopUp = styled.div`
+box-shadow: 0 1px 6px rgba(32,33,36,0.28);
+border: 1px solid rgba(223,225,229,0);
+position: absolute; 
+top: 50%;
+left: 50%;
+z-index: 10; 
+padding: 1.25rem; 
+background-color: #ffffff; 
+transform: translate(-50%, -50%);
+border-radius: 0.375rem; 
+margin: auto;
+`
+
 export default ({ closePortal }: { closePortal: Function; }) => {
     const [{ storageCache, loading, localState, needSave, requestApproval }, setState] = useState<State>({
         storageCache: {
@@ -170,6 +184,7 @@ export default ({ closePortal }: { closePortal: Function; }) => {
         browser.storage.sync.get().then((items) => {
 
             // Copy the data retrieved from storage into storageCache.
+            console.log('items', items);
             Object.assign(storageCache, items);
         });
         setState(prev => ({
@@ -294,18 +309,18 @@ export default ({ closePortal }: { closePortal: Function; }) => {
     }
 
     return <Portal id={'chatgpt-improved-prompt-extension-portal'}><Container>
-        {requestApproval && <div className=' bg-white rounded-md p-5 z-10 absolute -translate-x-2/4 -translate-y-2/4 m-auto top-2/4 left-2/4 shadow-[0_1px_6px_rgba(32,33,36,0.28)] border-[rgba(223,225,229,0)]'>
+        {requestApproval && <PopUp >
             <Button
                 color="dark.5"
                 variant="outline"
-                className='mr-5'
+                style={{ marginRight: '15px' }}
                 onClick={() => closePortal()}>
                 Discard
             </Button>
             <Button color="dark.5"
                 variant="outline"
                 onClick={() => setState(prev => ({ ...prev, requestApproval: false }))}>Cancel</Button>
-        </div>}
+        </PopUp>}
         <div className='flex flex-row justify-end mb-4'>
             <ActionIcon aria-label='close' onClick={handleClose} disabled={requestApproval || loading}>
                 <IconX />
@@ -355,17 +370,19 @@ export default ({ closePortal }: { closePortal: Function; }) => {
                                 aria-label='from'
                                 value={obj?.from}
                                 name={_key}
+                                radius='sm'
                                 onChange={handleInputChange}
                                 disabled={requestApproval || loading}
                                 error={obj?.regex ?
                                     testRegularExp(obj?.from as string).length === 2 ? "" : 'Invalid regex'
                                     : ''}
                             />
-                            <span className='pt-5 my-auto'>&#8594;</span>
+                            <span style={{ padding: '6px' }}>&#8594;</span>
                             <TextInput
                                 placeholder="xxx-xxx-xxx"
                                 label="Replace with"
                                 aria-label='to'
+                                radius='sm'
                                 name={_key}
                                 value={obj?.to}
                                 onChange={handleInputChange}
