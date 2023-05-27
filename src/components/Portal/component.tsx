@@ -6,6 +6,8 @@ import { IconX, IconCirclePlus, IconSquareRoundedX, IconRegex } from '@tabler/ic
 import { encode, decode, deepClone } from '../../util/encode'
 
 const Portal = styled.div`
+top: 0;
+left: 0;
 height: 100vh;
 width: 100vw;
 position: fixed;
@@ -70,6 +72,7 @@ const StyledCheckbox = styled(Checkbox)`
     background-color: #242731;
     border-color: #242731;
     box-shadow: 0 0 0 3px #c6cbdd;
+    background-image:none;
 }
 `;
 
@@ -81,7 +84,7 @@ type State = {
             [key: string]: {
                 from: string;
                 to: string;
-                regex: string;
+                regex: boolean;
                 regexBody: string;
                 regexFlags: string;
             }
@@ -94,7 +97,7 @@ type State = {
             [key: string]: {
                 from: string;
                 to: string;
-                regex: string;
+                regex: boolean;
                 regexBody: string;
                 regexFlags: string;
             }
@@ -140,7 +143,7 @@ const testRegularExp = (str: string) => {
     }
 }
 
-export default ({ closePortal = () => { } }: { closePortal: Function; }) => {
+export default ({ closePortal }: { closePortal: Function; }) => {
     const [{ storageCache, loading, localState, needSave, requestApproval }, setState] = useState<State>({
         storageCache: {
             postfix: '',
@@ -155,7 +158,7 @@ export default ({ closePortal = () => { } }: { closePortal: Function; }) => {
         newCount: 0,
         loading: false,
         needSave: false,
-        requestApproval: true
+        requestApproval: false
     });
 
     useEffect(() => {
@@ -210,7 +213,7 @@ export default ({ closePortal = () => { } }: { closePortal: Function; }) => {
                     ...prev.localState.replace, [`temp_${prev.newCount}`]: {
                         from: '',
                         to: '',
-                        regex: '',
+                        regex: false,
                         regexBody: '',
                         regexFlags: ''
                     }
@@ -264,7 +267,7 @@ export default ({ closePortal = () => { } }: { closePortal: Function; }) => {
         }
         console.log('newState', newState);
         await browser.storage.sync.set(newState);
-        setState(prev => ({ ...prev, loading: false, needSave: false }));
+        closePortal();
     }
 
     const handleClose = () => {

@@ -9,4 +9,4 @@ export default {
   component: Portal,
 };
 
-export const Render = () => <Portal />;
+export const Render = () => <Portal closePortal={() => { }} />;
