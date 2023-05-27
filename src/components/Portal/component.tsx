@@ -74,11 +74,27 @@ ${({ isChecked }) => (isChecked ? 'stroke:#fff;' : 'stroke:#242731;'
     border-radius: 5px;
     height: 19px;
     width: 19px;
+    border : 2px solid #242731;
 }
+& input:checked + svg{
+  stroke:#fff;
+}
+
 & input:focus{
-     outline: none;
-     box-shadow: none;
-     background-color: #242731;
+   box-shadow: none;
+   background-color: #fff;
+}
+
+& input:checked:focus{
+   background-color: #242731;
+    border-color: #242731;
+    box-shadow: 0 0 0 3px #c6cbdd;
+}
+
+& input:checked:hover{
+   background-color: #242731;
+    border-color: #242731;
+    box-shadow: 0 0 0 3px #c6cbdd;
 }
 & .mantine-Checkbox-body{
         margin: 0 0 7px 9px;
@@ -203,12 +219,16 @@ export default ({ closePortal }: { closePortal: Function; }) => {
             console.log('items', items);
             Object.assign(storageCache, items);
         });
+        const localState = deepClone(storageCache);
+        console.log('in a hook', localState, storageCache);
+
         setState(prev => ({
-            ...prev, storageCache, localState: deepClone(storageCache)
+            ...prev, storageCache, localState
         }));
     }, []);
 
     useEffect(() => {
+        console.log('localState', localState, storageCache)
         if (JSON.stringify(localState) !== JSON.stringify(storageCache)) {
             setState(prev => ({ ...prev, needSave: true }));
         } else {
@@ -386,7 +406,7 @@ export default ({ closePortal }: { closePortal: Function; }) => {
                                 aria-label='from'
                                 value={obj?.from}
                                 name={_key}
-                                radius='sm'
+                                style={{ borderRadius: '5px' }}
                                 onChange={handleInputChange}
                                 disabled={requestApproval || loading}
                                 error={obj?.regex ?
@@ -398,7 +418,7 @@ export default ({ closePortal }: { closePortal: Function; }) => {
                                 placeholder="xxx-xxx-xxx"
                                 label="Replace with"
                                 aria-label='to'
-                                radius='sm'
+                                style={{ borderRadius: '5px' }}
                                 name={_key}
                                 value={obj?.to}
                                 onChange={handleInputChange}
