@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "Chrome Extension Starter",
-  "description": "A Chrome Extension starter kit",
+  "name": "ChatGpt Prompt Prefixer",
+  "description": "An extension that would prefixer, postfix, replace keywords from the prompt textarea.",
   "version": "1.0.0",
   "action": {
     "default_icon": {
@@ -20,14 +20,7 @@
     "128": "icon-128.png"
   },
   "host_permissions": ["https://*/*"],
-  "permissions": [
-    "tabs",
-    "activeTab",
-    "notifications",
-    "scripting",
-    "webNavigation",
-    "storage"
-  ],
+  "permissions": ["tabs", "activeTab", "scripting", "webNavigation", "storage"],
   "content_scripts": [
     {
       "matches": ["https://chat.openai.com/*"],
