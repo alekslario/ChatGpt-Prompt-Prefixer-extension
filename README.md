@@ -1,40 +1,6 @@
-[![GitHub stars](https://img.shields.io/github/stars/xdlrt/web-extension-starter.svg?style=social&label=Stars&style=plastic)]()
-[![GitHub watchers](https://img.shields.io/github/watchers/xdlrt/web-extension-starter.svg?style=social&label=Watch&style=plastic)]()
-[![GitHub forks](https://img.shields.io/github/forks/xdlrt/web-extension-starter.svg?style=social&label=Fork&style=plastic)]()
-[![GitHub contributors](https://img.shields.io/github/contributors/xdlrt/web-extension-starter.svg)](https://github.com/xdlrt/web-extension-starter/graphs/contributors)
-[![MIT License](https://img.shields.io/apm/l/atomic-design-ui.svg?)](https://github.com/tterb/atomic-design-ui/blob/master/LICENSEs)
-[![GitHub issues](https://img.shields.io/github/issues/xdlrt/web-extension-starter.svg)](https://github.com/xdlrt/web-extension-starter/issues)
-[![GitHub last commit](https://img.shields.io/github/last-commit/xdlrt/web-extension-starter.svg)](https://github.com/xdlrt/web-extension-starter/commits/master)
-[![GitHub pull requests](https://img.shields.io/github/issues-pr/xdlrt/web-extension-starter.svg?style=flat)]()
-[![PR's Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat)](http://makeapullrequest.com)
 
-[![HitCount](http://hits.dwyl.com/xdlrt/web-extension-starter.svg)](http://hits.dwyl.com/xdlrt/web-extension-starter)
-[![Tweet](https://img.shields.io/twitter/url/https/github.com/xdlrt/web-extension-starter.svg?style=social)](https://twitter.com/intent/tweet?text=https://github.com/xdlrt/web-extension-starter)
-[![Twitter Follow](https://img.shields.io/twitter/follow/yeshu_in_future.svg?style=social)](https://twitter.com/yeshu_in_future)
-
-![Web Extension Starter](https://i.imgur.com/wjIiRSv.png)
-
-:desktop_computer: A Web Extension starter kit built with React, TypeScript, Storybook, EsLint, Prettier, Vitest, TailwindCSS, &amp; Webpack. Compatible with Google Chrome, Mozilla Firefox, Brave, and Microsoft Edge.
-
-![Example Extension Popup](https://i.imgur.com/UvOOWlv.png "Example Extension Popup")
 
 **Getting Started**
-
-Run the following commands to install dependencies and start developing
-
-```
-pnpm install
-pnpm dev
-```
-
-**Scripts**
-
--   `pnpm dev` - run `webpack` in `watch` mode
--   `pnpm storybook` - runs the Storybook server
--   `pnpm build` - builds the production-ready unpacked extension
--   `pnpm test` - runs Vitest
--   `pnpm lint` - runs EsLint
--   `pnpm prettify` - runs Prettier
 
 <details>
   <summary>Loading the extension in Google Chrome</summary>
